@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "../../lib/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
+import "../../lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 import "../../lib/openzeppelin-contracts/contracts/interfaces/IERC3156FlashLender.sol";
 import "../../lib/openzeppelin-contracts/contracts/interfaces/IERC3156FlashBorrower.sol";
 import "../../lib/solady/src/utils/SafeTransferLib.sol";

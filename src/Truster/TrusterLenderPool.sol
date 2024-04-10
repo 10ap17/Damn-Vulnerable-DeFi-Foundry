@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../../lib/openzeppelin-contracts/contracts/utils/Address.sol";
-import "../../lib/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
+import "../../lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 import "../DamnValuableToken.sol";
 
 /**
