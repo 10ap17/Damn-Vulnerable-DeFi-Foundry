@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-import {Test} from 'forge-std/Test.sol';
+import {Test, console} from 'forge-std/Test.sol';
 import '../../src/Selfie/Attack.sol';
 import '../../src/Selfie/SimpleGovernance.sol';
 import '../../src/Selfie/SelfiePool.sol';
@@ -26,9 +26,11 @@ contract TestAttack is Test{
 
         token.transfer(address(pool), INITIAL_SUPPLY_POOL);
         token.snapshot();
+    
     }
 
     function testDeployment()external{
+
         assertEq(token.balanceOf(address(pool)), INITIAL_SUPPLY_POOL);
         assertEq(token.totalSupply(),INITIAL_SUPPLY_TOKEN);
         assertEq(token.getBalanceAtLastSnapshot(address(pool)), INITIAL_SUPPLY_POOL);
@@ -36,11 +38,16 @@ contract TestAttack is Test{
     }
 
     function testAttack()external{
+        
         attacker.attack1();
-        skip(ACTION_DELAY);
-        attacker.attack2();
+        uint256 time = block.timestamp;
 
-        assertEq(INITIAL_SUPPLY_POOL, token.balanceOf(address(attacker)));
-        assertEq(0, token.balanceOf(address(pool)));
+        skip(ACTION_DELAY);
+        assertEq(block.timestamp, time + ACTION_DELAY);
+
+        attacker.attack2();
+        assertEq(token.balanceOf(address(attacker)), INITIAL_SUPPLY_POOL);
+        assertEq(token.balanceOf(address(pool)), 0);
+    
     }
 }
