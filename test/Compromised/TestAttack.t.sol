@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {Test} from 'forge-std/Test.sol';
+import '../../src/Compromised/Attack.sol';
 import '../../src/Compromised/TrustfulOracleInitializer.sol';
 import '../../src/Compromised/TrustfulOracle.sol';
 import '../../src/Compromised/Exchange.sol';
@@ -12,6 +13,7 @@ contract TestAttack is Test{
     TrustfulOracleInitializer initializer;
     TrustfulOracle oracle;
     Exchange exchange;
+    Attack attacker;
 
     address[] sources = new address[](3);
 
@@ -38,15 +40,22 @@ contract TestAttack is Test{
         initializer = new TrustfulOracleInitializer(sources, strings, numbers);
         oracle = initializer.oracle();
         exchange = new Exchange{value: INITIAL_EXCHANGE_ETH_BALANCE}(address(oracle));
-        
-        //deal(attacker, INITIAL_PLAYER_ETH_BALANCE);
+        attacker = new Attack();
+
+        vm.deal(address(attacker), INITIAL_PLAYER_ETH_BALANCE);
     }
 
     function testDeployment()external{
         for(uint256 i; i<3; i++){
             assertEq(sources[i].balance, INITIAL_TRUSTED_SOURCE_ETH_BALANCE);
         }
-        //assertEq(address(attacker).balance, INITIAL_PLAYER_ETH_BALANCE);
+        assertEq(address(attacker).balance, INITIAL_PLAYER_ETH_BALANCE);
     }
-    
+    function testAttack()external{
+        for(uint256 i; i<3; i++){
+            vm.prank(sources[i]);
+            oracle.postPrice("DVNFT", 0);
+        }
+        assertEq(oracle.getMedianPrice("DVNFT"), 0);
+    }
 }
