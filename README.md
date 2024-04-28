@@ -1,13 +1,21 @@
 # Damn-Vulnerable-DeFi-Foundry
 ## Table of Contents
 ~ [About](#about)
+
 ~ [Unstoppable](#1-unstoppable)
+
 ~ [Naive Receiver](#2-naive-receiver)
+
 ~ [Truster](#3-truster)
+
 ~ [Side Entrance](#4-side-entrance)
+
 ~ [The Rewarder](#5-the-rewarder)
+
 ~ [Selfie](#6-selfie)
+
 ~ [Compromised](#7-compromised)
+
 ## <a name="about"></a>About
 Damn Vulnerable DeFi is the CTF for offensive security of DeFi smart contracts in Ethereum blockchain. It encompasses various challenges ranging from flash loans and price oracles to governance exploits, NFT vulnerabilities, lending pool attacks and more.
 In this repository, you'll find a collection of challenges that simulate real-world vulnerabilities found in decentralized finance (DeFi) applications. Each challenge presents a unique scenario where participants are tasked with exploiting vulnerabilities to achieve specific objectives.
