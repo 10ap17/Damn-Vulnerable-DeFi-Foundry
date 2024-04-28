@@ -1,7 +1,20 @@
 # Damn-Vulnerable-DeFi-Foundry
-## 1. Unstoppable
+## Table of Contents
+~ [About](#about)
+~ [Unstoppable](#1-unstoppable)
+~ [Naive Receiver](#2-naive-receiver)
+~ [Truster](#3-truster)
+~ [Side Entrance](#4-side-entrance)
+~ [The Rewarder](#5-the-rewarder)
+~ [Selfie](#6-selfie)
+~ [Compromised](#7-compromised)
+## <a name="about"></a>About
+Damn Vulnerable DeFi is the CTF for offensive security of DeFi smart contracts in Ethereum blockchain. It encompasses various challenges ranging from flash loans and price oracles to governance exploits, NFT vulnerabilities, lending pool attacks and more.
+In this repository, you'll find a collection of challenges that simulate real-world vulnerabilities found in decentralized finance (DeFi) applications. Each challenge presents a unique scenario where participants are tasked with exploiting vulnerabilities to achieve specific objectives.
+To solve these challenges, we employ the Foundry framework, a powerful toolset that provides the flexibility to craft and execute sophisticated attacks against vulnerable smart contracts. Foundry allows participants to explore different attack vectors and manipulate contract states.
+## <a name="1-unstoppable"></a>1. Unstoppable
 This is an example of Denial of Service where the line `convertToShares(totalSupply) != balanceBefore` is vulnerable. So, by sending any amount of tokens, that is greater than 0, we could cause Denial of Service
-## 2. Naive receiver
+## <a name="2-naive-receiver"></a>2. Naive receiver
 In the `function flashLoan()`, the pool initiates a flash loan by transferring ETH to the receiver and allowing it to execute arbitrary logic. However, the `function onFlashLoan()` in the receiver contract doesn't properly validate the caller's identity, allowing anyone to invoke it. By exploiting this vulnerability, an attacker can repeatedly trigger the `function flashLoan()`, draining the receiver's ETH balance by forcing it to pay the fixed fee with each loan. This attack effectively takes all ETH held by the receiver contract, exploiting the lack of proper authorization checks in the `function onFlashLoan()`.
 ### Solution
 ```solidity
@@ -11,7 +24,7 @@ function attack(IERC3156FlashBorrower receiver, NaiveReceiverLenderPool pool) ex
     }
 }
 ```
-## 3. Truster
+## <a name="3-truster"></a>3. Truster
 In this vulnerable flash loan function, the vulnerability lies in the external code execution through the `target.functionCall(data)` line. While flash loans are designed to provide temporary liquidity, allowing borrowers to execute arbitrary code poses a significant security risk. By accepting a target address and call data as parameters, the function enables the execution of any function on the target contract. This opens the door to potential exploits.
 ```solidity
 function flashLoan(uint256 amount, address borrower, address target, bytes calldata data)external nonReentrant returns (bool)
@@ -38,7 +51,7 @@ function attack(TrusterLenderPool pool, DamnValuableToken token)external{
         token.transferFrom(address(pool),address(this),1000000);
         }
 ```
-## 4. Side Entrance
+## <a name="4-side-entrance"></a>4. Side Entrance
 The `function flashLoan()` lacks proper verification during loan execution, allowing attackers to exploit a discrepancy between the token balance and the internal accounting system. By depositing borrowed funds back into the contract during the callback phase, attackers can manipulate the accounting system, deceiving the verification process and enabling unauthorized fund withdrawals.
 ```solidity
 function flashLoan(uint256 amount) external {
@@ -62,7 +75,7 @@ function execute()external payable{
         pool.deposit{value: msg.value}();
     }
 ```
-## 5. The Rewarder
+## <a name="5-the-rewarder"></a>5. The Rewarder
 The vulnerability lies in the mechanism of distributing rewards in `TheRewarderPool` contract. Specifically, the distribution of rewards depends on a single snapshot in time rather than continuous or aggregated data points. This makes the system susceptible to manipulation through flash loans.
 ```solidity
  function distributeRewards() public returns (uint256 rewards) {
@@ -99,7 +112,7 @@ To exploit this vulnerability, we aim to claim the most rewards in the upcoming 
         liquidityToken.transfer(address(flashPool), amount);
     }
 ```
-## 6. Selfie
+## <a name="6-selfie"></a>6. Selfie
 The vulnerability lies in the `SimpleGovernance` contract's mechanism for queuing actions based on the number of votes rather than any additional security checks. This means that any user with sufficient voting power can queue an action within the `SimpleGovernance` contract, regardless of their intentions or the potential impact on the system. Specifically, critical functions like function `emergencyExit()` can be called, leaving the contract vulnerable to fund drains.
 ```solidity
  function emergencyExit(address receiver) external onlyGovernance {
@@ -134,7 +147,7 @@ To exploit this vulnerability, we utilize the flash loan feature provided by the
         return CALLBACK_SUCCESS;
     }
 ```
-## 7. Compromised
+## <a name="7-compromised"></a>7. Compromised
 The vulnerability exploited in this attack lies in the `TrustfulOracle` contract's reliance on a fixed set of trusted reporters to determine the price of the DVNFT tokens. By compromising trusted reporters, the attacker can manipulate the reported price, leading to erroneous valuations within the `Exchange` contract.
 ```solidity
  function postPrice(string calldata symbol, uint256 newPrice) external onlyRole(TRUSTED_SOURCE_ROLE) {
