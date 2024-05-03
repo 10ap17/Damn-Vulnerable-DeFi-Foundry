@@ -1,5 +1,7 @@
 # Damn-Vulnerable-DeFi-Foundry
 ## Table of Contents
+~ [Requirements](#requirements)
+
 ~ [About](#about)
 
 ~ [Unstoppable](#1-unstoppable)
@@ -15,6 +17,29 @@
 ~ [Selfie](#6-selfie)
 
 ~ [Compromised](#7-compromised)
+
+## <a name="requirements"></a>Requirements
+To work with this repository, you need to fulfill the following requirements:
+
+1. Install Foundry: 
+```
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+```
+2. Clone the Repository: Clone the Damn Vulnerable DeFi Foundry repository to your local machine using Git:
+```
+git clone https://github.com/nicolasgarcia214/damn-vulnerable-defi-foundry.git
+cd damn-vulnerable-defi-foundry
+```
+3. Install Dependencies: Ensure that you have all the required dependencies installed to run the tests. You can install dependencies by running:
+```
+forge install
+```
+4. Test Challenges: To test any challenge, you can use the following command, replacing NameOfTestFile.t.sol with the name of the specific test file:
+```
+forge test --match-test test/NameOfTestFile.t.sol
+```
+Ensure that you meet these requirements before proceeding with any operations or testing within the Damn Vulnerable DeFi Foundry repository.
 
 ## <a name="about"></a>About
 Damn Vulnerable DeFi is the CTF for offensive security of DeFi smart contracts in Ethereum blockchain. It encompasses various challenges ranging from flash loans and price oracles to governance exploits, NFT vulnerabilities, lending pool attacks and more.
