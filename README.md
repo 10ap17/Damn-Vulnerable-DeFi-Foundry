@@ -1,4 +1,11 @@
 # Damn-Vulnerable-DeFi-Foundry
+```text
+   ___                   _   __     __                  __   __       ___      _____ 
+  / _ \___ ___ _  ___   | | / /_ __/ /__  ___ _______ _/ /  / /__    / _ \___ / __(_)
+ / // / _ `/  ' \/ _ \  | |/ / // / / _ \/ -_) __/ _ `/ _ \/ / -_)  / // / -_) _// / 
+/____/\_,_/_/_/_/_//_/  |___/\_,_/_/_//_/\__/_/  \_,_/_.__/_/\__/  /____/\__/_/ /_/  
+```
+
 ## Table of Contents
 ~ [Requirements](#requirements)
 
@@ -26,16 +33,16 @@ To work with this repository, you need to fulfill the following requirements:
 curl -L https://foundry.paradigm.xyz | bash
 foundryup
 ```
-2. Clone the Repository: Clone the Damn Vulnerable DeFi Foundry repository to your local machine using Git:
+2. Clone the Damn Vulnerable DeFi Foundry repository to your local machine using Git:
 ```
-git clone https://github.com/nicolasgarcia214/damn-vulnerable-defi-foundry.git
-cd damn-vulnerable-defi-foundry
+git clone https://github.com/10ap17/Damn-Vulnerable-DeFi-Foundry.git
+cd Damn-Vulnerable-DeFi-Foundry
 ```
-3. Install Dependencies: Ensure that you have all the required dependencies installed to run the tests. You can install dependencies by running:
+3. Ensure that you have all the required dependencies installed to run the tests. You can install dependencies by running:
 ```
 forge install
 ```
-4. Test Challenges: To test any challenge, you can use the following command, replacing NameOfTestFile.t.sol with the name of the specific test file:
+4. To test any challenge, you can use the following command, replacing NameOfTestFile.t.sol with the name of the specific test file:
 ```
 forge test --match-test test/NameOfTestFile.t.sol
 ```
