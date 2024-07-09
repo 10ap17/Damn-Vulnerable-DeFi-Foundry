@@ -29,21 +29,21 @@
 To work with this repository, you need to fulfill the following requirements:
 
 1. Install Foundry: 
-```
+```bash
 curl -L https://foundry.paradigm.xyz | bash
 foundryup
 ```
 2. Clone the Damn Vulnerable DeFi Foundry repository to your local machine using Git:
-```
+```bash
 git clone https://github.com/10ap17/Damn-Vulnerable-DeFi-Foundry.git
 cd Damn-Vulnerable-DeFi-Foundry
 ```
 3. Ensure that you have all the required dependencies installed to run the tests. You can install dependencies by running:
-```
+```bash
 forge install
 ```
 4. To test any challenge, you can use the following command, replacing NameOfTestFile.t.sol with the name of the specific test file:
-```
+```bash
 forge test --match-test test/NameOfTestFile.t.sol
 ```
 Ensure that you meet these requirements before proceeding with any operations or testing within the Damn Vulnerable DeFi Foundry repository.
